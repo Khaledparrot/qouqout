@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>1Xbet</title>
   <style>
-    /* (existing styles remain unchanged) */
     body {
       font-family: sans-serif;
       margin: 0;
@@ -24,7 +23,7 @@
     }
     .fixed-top { position: fixed; top: 0; left: 0; right: 0; background: #f2f2f2; z-index: 100; padding: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     h1 { text-align: center; font-size: 1.2rem; margin: 0 0 0.5rem 0; color: #003366; }
-    .top-summary { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: bold; }
+    .top-summary { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-bottom: 0.5rem; font-size:  0.9rem; font-weight: bold; }
     .top-bar { display: flex; flex-direction: column; gap: 0.5rem; }
     @media(min-width: 600px) { .top-bar { flex-direction: row; justify-content: center; flex-wrap: wrap; } }
     .top-bar input { padding: 0.5rem; border-radius: 5px; border: 1px solid #ccc; flex: 1; }
@@ -59,6 +58,7 @@
   </div>
   <div id="sideMenu">
     <button onclick="closeMenu()">×</button>
+    <button onclick="registerFingerprint()">Enregistrer empreinte</button>
     <button onclick="openSetPwd()">Définir mot de passe</button>
     <button onclick="toggleDarkMode()">Mode sombre</button>
     <button onclick="openCalculator()">Calculatrice</button>
@@ -67,7 +67,9 @@
     let failCount = 0;
     let storedPassword = localStorage.getItem('appPassword') || '';
 
-    document.getElementById('fpBtn').onclick = async () => {
+    document.getElementById('fpBtn').onclick = authenticateFingerprint;
+
+    async function authenticateFingerprint() {
       try {
         const cred = await navigator.credentials.get({
           publicKey: {
@@ -86,7 +88,7 @@
           alert(`Échec de l'empreinte. Tentatives restantes: ${3 - failCount}`);
         }
       }
-    };
+    }
 
     document.getElementById('pwdBtn').onclick = () => {
       const entered = document.getElementById('lockPwd').value;
@@ -106,6 +108,33 @@
       if (pwd) {
         localStorage.setItem('appPassword', pwd);
         alert("Mot de passe enregistré.");
+      }
+    }
+
+    async function registerFingerprint() {
+      try {
+        const publicKey = {
+          challenge: new Uint8Array(26),
+          rp: { name: "1Xbet Local App" },
+          user: {
+            id: new Uint8Array(16),
+            name: "user@example.com",
+            displayName: "Utilisateur"
+          },
+          pubKeyCredParams: [
+            { type: "public-key", alg: -7 }
+          ],
+          authenticatorSelection: {
+            authenticatorAttachment: "platform",
+            userVerification: "required"
+          },
+          timeout: 60000,
+          attestation: "direct"
+        };
+        const credential = await navigator.credentials.create({ publicKey });
+        alert("Empreinte enregistrée avec succès !");
+      } catch (err) {
+        alert("Erreur lors de l'enregistrement de l'empreinte : " + err.message);
       }
     }
 
