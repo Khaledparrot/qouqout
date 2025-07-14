@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Transaction Manager</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 1rem; background: #f2f2f2; }
+    h1 { text-align: center; }
+    .top-bar { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+    @media(min-width: 600px) {
+      .top-bar { flex-direction: row; justify-content: center; flex-wrap: wrap; }
+    }
+    .top-bar input { padding: 0.5rem; border-radius: 5px; border: 1px solid #ccc; flex: 1; }
+    button { padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer; background-color: #007bff; color: white; }
+    button.small { font-size: 0.75rem; padding: 0.25rem 0.5rem; margin-left: 0.5rem; }
+    .customer { background: white; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .customer-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+    .customer-header div { margin-top: 0.5rem; }
+    .actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; align-items: center; }
+    .history { display: none; margin-top: 0.5rem; background: #f9f9f9; padding: 0.5rem; border-radius: 5px; max-height: 150px; overflow-y: auto; font-size: 0.9rem; }
+    input.amount-input { width: 80px; padding: 0.25rem; border: 1px solid #ccc; border-radius: 4px; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 10; }
+    .modal-content { background: white; padding: 1rem; border-radius: 8px; width: 90%; max-width: 400px; position: relative; }
+    .modal-content input { width: 100%; padding: 0.5rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 4px; }
+    .modal-content button { width: 100%; }
+    .modal-close { position: absolute; top: 0.25rem; right: 0.5rem; font-size: 1.5rem; cursor: pointer; color: #888; }
+    #editSelectList { display: none; background: white; padding: 1rem; border-radius: 8px; max-height: 300px; overflow-y: auto; margin-bottom: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    #editSelectList div { padding: 0.5rem; border-bottom: 1px solid #eee; cursor: pointer; }
+    #editSelectList div:hover { background: #f0f0f0; }
+  </style>
+</head>
+<body>
+  <h1>Customer Manager</h1>
+  <div class="top-bar">
+    <button onclick="openCustomerModal('add')">Add Customer</button>
+    <button onclick="showEditList()">Edit Customer</button>
+    <input type="text" id="search" placeholder="Search customers..." oninput="renderCustomers()">
+  </div>
+  <div id="editSelectList"></div>
+  <div id="customerList"></div>
+
+  <div class="modal" id="customerModal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal()">&times;</span>
+      <input type="text" id="modalName" placeholder="Customer Name">
+      <input type="text" id="modalId" placeholder="Customer ID">
+      <button onclick="submitCustomer()">Save</button>
+    </div>
+  </div>
+
+  <script>
+    let customers = JSON.parse(localStorage.getItem('customers') || '[]');
+    let modalMode = 'add';
+    let editingCustomer = null;
+
+    function saveCustomers() {
+      localStorage.setItem('customers', JSON.stringify(customers));
+    }
+
+    function showEditList() {
+      const list = document.getElementById('editSelectList');
+      list.innerHTML = '<strong>Select customer to edit:</strong>';
+      customers.forEach((c, i) => {
+        const item = document.createElement('div');
+        item.textContent = `${c.name} (${c.id})`;
+        item.onclick = () => {
+          editingCustomer = customers[i];
+          document.getElementById('modalName').value = editingCustomer.name;
+          document.getElementById('modalId').value = editingCustomer.id;
+          modalMode = 'edit';
+          document.getElementById('customerModal').style.display = 'flex';
+          list.style.display = 'none';
+        };
+        list.appendChild(item);
+      });
+      list.style.display = 'block';
+    }
+
+    function openCustomerModal(mode) {
+      modalMode = mode;
+      document.getElementById('modalName').value = '';
+      document.getElementById('modalId').value = '';
+      editingCustomer = null;
+      document.getElementById('customerModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('customerModal').style.display = 'none';
+    }
+
+    function submitCustomer() {
+      const name = document.getElementById('modalName').value.trim();
+      const id = document.getElementById('modalId').value.trim();
+      if (!name || !id) return alert("Both fields are required");
+
+      if (modalMode === 'add') {
+        customers.push({ name, id, history: [], total: 0 });
+      } else if (modalMode === 'edit' && editingCustomer) {
+        editingCustomer.name = name;
+        editingCustomer.id = id;
+      }
+      closeModal();
+      saveCustomers();
+      renderCustomers();
+    }
+
+    window.onclick = function(event) {
+      const modal = document.getElementById('customerModal');
+      if (event.target === modal) {
+        closeModal();
+      }
+    }
+
+    function deleteCustomer(index) {
+      if (confirm("Are you sure to delete this customer?")) {
+        customers.splice(index, 1);
+        saveCustomers();
+        renderCustomers();
+      }
+    }
+
+    function copyId(id) {
+      navigator.clipboard.writeText(id).then(() => alert("ID copied"));
+    }
+
+    function addTransaction(index, type) {
+      const input = document.getElementById(`amount-${index}`);
+      const amount = input.value.trim();
+      if (!amount || isNaN(amount)) return alert("Enter a valid number");
+      const value = type === 'add' ? +amount : -amount;
+      const entry = { value, date: new Date().toLocaleString() };
+      customers[index].history.push(entry);
+      customers[index].total = (customers[index].total || 0) + value;
+      input.value = '';
+      saveCustomers();
+      renderCustomers();
+    }
+
+    function toggleHistory(index) {
+      const el = document.getElementById(`history-${index}`);
+      el.style.display = el.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function renderCustomers() {
+      const search = document.getElementById("search").value.toLowerCase();
+      const list = document.getElementById("customerList");
+      list.innerHTML = '';
+      customers.forEach((cust, i) => {
+        if (!cust.name.toLowerCase().includes(search)) return;
+        const div = document.createElement('div');
+        div.className = 'customer';
+        div.innerHTML = `
+          <div class="customer-header">
+            <strong>${cust.name}</strong>
+            <div>
+              ID: <span>${cust.id}</span>
+              <button class="small" onclick="copyId('${cust.id}')">Copy</button>
+            </div>
+            <div>Total: <strong>${cust.total || 0}</strong></div>
+          </div>
+          <div class="actions">
+            <input id="amount-${i}" class="amount-input" type="number" placeholder="Amount" />
+            <button onclick="addTransaction(${i}, 'add')">Add</button>
+            <button onclick="addTransaction(${i}, 'sub')">Soustraire</button>
+            <button onclick="deleteCustomer(${i})">Delete</button>
+            <button onclick="toggleHistory(${i})">Historic</button>
+          </div>
+          <div id="history-${i}" class="history">
+            ${cust.history.map(h => `<div>${h.date}: <strong>${h.value > 0 ? '+' : ''}${h.value}</strong></div>`).join('') || 'No history'}
+          </div>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    renderCustomers();
+  </script>
+</body>
+</html>
