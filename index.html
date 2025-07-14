@@ -215,7 +215,7 @@
 
     function showEditList() {
       const list = document.getElementById('editSelectList');
-      list.innerHTML = '<button onclick="cancelEditList()" style="margin-bottom: 1rem; background: #dc3545;">X</button>';
+      list.innerHTML = '<button onclick="cancelEditList()" style="margin-bottom: 1rem; background: #003366;">X</button>';
       customers.forEach((c, i) => {
         const item = document.createElement('div');
         item.textContent = `${c.name} (${c.id})`;
