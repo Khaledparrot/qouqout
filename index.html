@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Customer Transaction Manager</title>
+  <title>Gestionnaire de Transactions Clients</title>
   <style>
     body {
       font-family: sans-serif;
       margin: 0;
-      padding-top: 12rem; /* Adjusted for fixed top space */
+      padding-top: 12rem;
       background: #f2f2f2;
     }
     .fixed-top {
@@ -25,6 +25,7 @@
       text-align: center;
       font-size: 1.2rem;
       margin: 0 0 0.5rem 0;
+      color: #003366;
     }
     .top-summary {
       display: flex;
@@ -58,7 +59,7 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      background-color: #007bff;
+      background-color: #003366;
       color: white;
     }
     button.small {
@@ -125,38 +126,38 @@
       z-index: 200;
     }
     .modal-content {
-  background: white;
-  padding: 2rem 1rem 1rem 1rem; /* More top padding to avoid overlapping with X */
-  border-radius: 8px;
-  width: 90%;
-  max-width: 400px;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box; /* ensures padding doesn't overflow */
-  overflow: hidden;
-}
-.modal-content input {
-  width: 100%;
-  padding: 0.5rem;
-  margin-bottom: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box; /* ensures width stays within container */
-}
+      background: white;
+      padding: 2rem 1rem 1rem 1rem;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    .modal-content input {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
     .modal-content button {
       width: 100%;
     }
-.modal-close {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.75rem;
-  font-size: 1.5rem;
-  font-weight: bold;
-  cursor: pointer;
-  color: #888;
-  z-index: 1;
-}
+    .modal-close {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+      cursor: pointer;
+      color: #888;
+      z-index: 1;
+    }
     #editSelectList {
       display: none;
       background: white;
@@ -179,17 +180,17 @@
 </head>
 <body>
   <div class="fixed-top">
-    <h1>Customer Manager</h1>
+    <h1>Gestionnaire de Clients</h1>
     <div class="top-summary" id="totalSummary"></div>
     <div class="top-bar">
-      <button onclick="openCustomerModal('add')">Add Customer</button>
-      <button onclick="showEditList()">Edit Customer</button>
-      <input type="text" id="search" placeholder="Search customers..." oninput="renderCustomers()">
+      <button onclick="openCustomerModal('add')">Ajouter un client</button>
+      <button onclick="showEditList()">Modifier un client</button>
+      <input type="text" id="search" placeholder="Rechercher un client..." oninput="renderCustomers()">
     </div>
   </div>
 
   <div id="editSelectList">
-    <button onclick="cancelEditList()" style="margin-bottom: 1rem; background: #dc3545;">Cancel</button>
+    <button onclick="cancelEditList()" style="margin-bottom: 1rem; background: #dc3545;">Annuler</button>
   </div>
 
   <div id="customerList"></div>
@@ -197,9 +198,9 @@
   <div class="modal" id="customerModal">
     <div class="modal-content">
       <span class="modal-close" onclick="closeModal()">&times;</span>
-      <input type="text" id="modalName" placeholder="Customer Name">
-      <input type="text" id="modalId" placeholder="Customer ID">
-      <button onclick="submitCustomer()">Save</button>
+      <input type="text" id="modalName" placeholder="Nom du client">
+      <input type="text" id="modalId" placeholder="ID du client">
+      <button onclick="submitCustomer()">Enregistrer</button>
     </div>
   </div>
 
@@ -214,7 +215,7 @@
 
     function showEditList() {
       const list = document.getElementById('editSelectList');
-      list.innerHTML = '<button onclick="cancelEditList()" style="margin-bottom: 1rem; background: #dc3545;">Cancel</button>';
+      list.innerHTML = '<button onclick="cancelEditList()" style="margin-bottom: 1rem; background: #dc3545;">Annuler</button>';
       customers.forEach((c, i) => {
         const item = document.createElement('div');
         item.textContent = `${c.name} (${c.id})`;
@@ -250,7 +251,7 @@
     function submitCustomer() {
       const name = document.getElementById('modalName').value.trim();
       const id = document.getElementById('modalId').value.trim();
-      if (!name || !id) return alert("Both fields are required");
+      if (!name || !id) return alert("Les deux champs sont requis");
 
       if (modalMode === 'add') {
         customers.push({ name, id, history: [], total: 0 });
@@ -264,7 +265,7 @@
     }
 
     function deleteCustomer(index) {
-      if (confirm("Are you sure to delete this customer?")) {
+      if (confirm("Êtes-vous sûr de vouloir supprimer ce client ?")) {
         customers.splice(index, 1);
         saveCustomers();
         renderCustomers();
@@ -272,13 +273,13 @@
     }
 
     function copyId(id) {
-      navigator.clipboard.writeText(id).then(() => alert("ID copied"));
+      navigator.clipboard.writeText(id).then(() => alert("ID copié"));
     }
 
     function addTransaction(index, type) {
       const input = document.getElementById(`amount-${index}`);
       const amount = input.value.trim();
-      if (!amount || isNaN(amount)) return alert("Enter a valid number");
+      if (!amount || isNaN(amount)) return alert("Entrez un montant valide");
       const value = type === 'add' ? +amount : -amount;
       const entry = { value, date: new Date().toLocaleString() };
       customers[index].history.push(entry);
@@ -310,27 +311,27 @@
         div.innerHTML = `
           <div class="customer-header">
             <strong>${cust.name}</strong>
-            <div>ID: <span>${cust.id}</span> <button class="small" onclick="copyId('${cust.id}')">Copy</button></div>
+            <div>ID: <span>${cust.id}</span> <button class="small" onclick="copyId('${cust.id}')">Copier</button></div>
             <div>Total: <strong>${cust.total || 0}</strong></div>
           </div>
           <div class="action-row-top">
-            <input id="amount-${i}" class="amount-input" type="number" placeholder="Amount" />
-            <button onclick="addTransaction(${i}, 'add')">Add</button>
+            <input id="amount-${i}" class="amount-input" type="number" placeholder="Montant" />
+            <button onclick="addTransaction(${i}, 'add')">Ajouter</button>
             <button onclick="addTransaction(${i}, 'sub')">Soustraire</button>
           </div>
           <div class="action-row-bottom">
-            <button onclick="deleteCustomer(${i})">Delete</button>
-            <button onclick="toggleHistory(${i})">Historic</button>
+            <button onclick="deleteCustomer(${i})">Supprimer</button>
+            <button onclick="toggleHistory(${i})">Historique</button>
           </div>
           <div id="history-${i}" class="history">
-            ${cust.history.map(h => `<div>${h.date}: <strong>${h.value > 0 ? '+' : ''}${h.value}</strong></div>`).join('') || 'No history'}
+            ${cust.history.map(h => `<div>${h.date}: <strong>${h.value > 0 ? '+' : ''}${h.value}</strong></div>`).join('') || 'Aucun historique'}
           </div>
         `;
         list.appendChild(div);
         total += cust.total || 0;
       });
 
-      totalSummary.textContent = `Total across all customers: ${total}`;
+      totalSummary.textContent = `Total pour tous les clients : ${total}`;
     }
 
     renderCustomers();
