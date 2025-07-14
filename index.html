@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>1Xbet</title>
   <style>
+    /* (existing styles remain unchanged) */
     body {
       font-family: sans-serif;
       margin: 0;
@@ -21,204 +22,32 @@
       background: #333;
       color: #fff;
     }
-    .fixed-top {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: #f2f2f2;
-      z-index: 100;
-      padding: 1rem;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    h1 {
-      text-align: center;
-      font-size: 1.2rem;
-      margin: 0 0 0.5rem 0;
-      color: #003366;
-    }
-    .top-summary {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 1rem;
-      margin-bottom: 0.5rem;
-      font-size: 0.9rem;
-      font-weight: bold;
-    }
-    .top-bar {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    @media(min-width: 600px) {
-      .top-bar {
-        flex-direction: row;
-        justify-content: center;
-        flex-wrap: wrap;
-      }
-    }
-    .top-bar input {
-      padding: 0.5rem;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      flex: 1;
-    }
-    button {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      background-color: #003366;
-      color: white;
-    }
-    button.small {
-      font-size: 0.75rem;
-      padding: 0.25rem 0.5rem;
-      margin-left: 0.5rem;
-    }
-    .customer {
-      background: white;
-      border-radius: 8px;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .customer-header {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    .action-row-top {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 0.5rem;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .action-row-bottom {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      margin-top: 0.5rem;
-      align-items: center;
-    }
-    .action-row-bottom button {
-      width: 100%;
-      max-width: 500px;
-    }
-    .history {
-      display: none;
-      margin-top: 0.5rem;
-      background: #f9f9f9;
-      padding: 0.5rem;
-      border-radius: 5px;
-      max-height: 150px;
-      overflow-y: auto;
-      font-size: 0.9rem;
-    }
-    input.amount-input {
-      width: 100px;
-      padding: 0.25rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.5);
-      justify-content: center;
-      align-items: center;
-      z-index: 200;
-    }
-    .modal-content {
-      background: white;
-      padding: 2rem 1rem 1rem 1rem;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 400px;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      box-sizing: border-box;
-      overflow: hidden;
-    }
-    .modal-content input {
-      width: 100%;
-      padding: 0.5rem;
-      margin-bottom: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-sizing: border-box;
-    }
-    .modal-content button {
-      width: 100%;
-    }
-    .modal-close {
-      position: absolute;
-      top: 0.5rem;
-      right: 0.75rem;
-      font-size: 1.5rem;
-      font-weight: bold;
-      cursor: pointer;
-      color: #888;
-      z-index: 1;
-    }
-    #editSelectList {
-      display: none;
-      background: white;
-      padding: 1rem;
-      border-radius: 8px;
-      max-height: 300px;
-      overflow-y: auto;
-      margin-bottom: 1rem;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    #editSelectList div {
-      padding: 0.5rem;
-      border-bottom: 1px solid #eee;
-      cursor: pointer;
-    }
-    #editSelectList div:hover {
-      background: #f0f0f0;
-    }
-    #lockOverlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      z-index: 500;
-    }
-    #sideMenu {
-      position: fixed;
-      top: 0;
-      bottom: 0;
-      left: -250px;
-      width: 250px;
-      background: #003366;
-      color: #fff;
-      padding: 1rem;
-      transition: left 0.3s;
-      z-index: 400;
-    }
-    #sideMenu button {
-      background: none;
-      border: none;
-      color: #fff;
-      display: block;
-      margin: 0.5rem 0;
-      text-align: left;
-    }
+    .fixed-top { position: fixed; top: 0; left: 0; right: 0; background: #f2f2f2; z-index: 100; padding: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    h1 { text-align: center; font-size: 1.2rem; margin: 0 0 0.5rem 0; color: #003366; }
+    .top-summary { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: bold; }
+    .top-bar { display: flex; flex-direction: column; gap: 0.5rem; }
+    @media(min-width: 600px) { .top-bar { flex-direction: row; justify-content: center; flex-wrap: wrap; } }
+    .top-bar input { padding: 0.5rem; border-radius: 5px; border: 1px solid #ccc; flex: 1; }
+    button { padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer; background-color: #003366; color: white; }
+    button.small { font-size: 0.75rem; padding: 0.25rem 0.5rem; margin-left: 0.5rem; }
+    .customer { background: white; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .customer-header { display: flex; flex-direction: column; gap: 0.5rem; }
+    .action-row-top { display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; align-items: center; }
+    .action-row-bottom { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem; align-items: center; }
+    .action-row-bottom button { width: 100%; max-width: 500px; }
+    .history { display: none; margin-top: 0.5rem; background: #f9f9f9; padding: 0.5rem; border-radius: 5px; max-height: 150px; overflow-y: auto; font-size: 0.9rem; }
+    input.amount-input { width: 100px; padding: 0.25rem; border: 1px solid #ccc; border-radius: 4px; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 200; }
+    .modal-content { background: white; padding: 2rem 1rem 1rem 1rem; border-radius: 8px; width: 90%; max-width: 400px; position: relative; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; }
+    .modal-content input { width: 100%; padding: 0.5rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    .modal-content button { width: 100%; }
+    .modal-close { position: absolute; top: 0.5rem; right: 0.75rem; font-size: 1.5rem; font-weight: bold; cursor: pointer; color: #888; z-index: 1; }
+    #editSelectList { display: none; background: white; padding: 1rem; border-radius: 8px; max-height: 300px; overflow-y: auto; margin-bottom: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    #editSelectList div { padding: 0.5rem; border-bottom: 1px solid #eee; cursor: pointer; }
+    #editSelectList div:hover { background: #f0f0f0; }
+    #lockOverlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #fff; display: flex; align-items: center; justify-content: center; flex-direction: column; z-index: 500; }
+    #sideMenu { position: fixed; top: 0; bottom: 0; left: -250px; width: 250px; background: #003366; color: #fff; padding: 1rem; transition: left 0.3s; z-index: 400; }
+    #sideMenu button { background: none; border: none; color: #fff; display: block; margin: 0.5rem 0; text-align: left; }
   </style>
 </head>
 <body>
@@ -234,4 +63,63 @@
     <button onclick="toggleDarkMode()">Mode sombre</button>
     <button onclick="openCalculator()">Calculatrice</button>
   </div>
-  <!-- Existing page content remains unchanged below -->
+  <script>
+    let failCount = 0;
+    let storedPassword = localStorage.getItem('appPassword') || '';
+
+    document.getElementById('fpBtn').onclick = async () => {
+      try {
+        const cred = await navigator.credentials.get({
+          publicKey: {
+            challenge: new Uint8Array(32),
+            timeout: 60000,
+            userVerification: "preferred"
+          }
+        });
+        unlockApp();
+      } catch (e) {
+        failCount++;
+        if (failCount >= 3) {
+          document.getElementById('lockPwd').style.display = 'block';
+          document.getElementById('pwdBtn').style.display = 'block';
+        } else {
+          alert(`Échec de l'empreinte. Tentatives restantes: ${3 - failCount}`);
+        }
+      }
+    };
+
+    document.getElementById('pwdBtn').onclick = () => {
+      const entered = document.getElementById('lockPwd').value;
+      if (entered === storedPassword) {
+        unlockApp();
+      } else {
+        alert('Mot de passe incorrect');
+      }
+    };
+
+    function unlockApp() {
+      document.getElementById('lockOverlay').style.display = 'none';
+    }
+
+    function openSetPwd() {
+      const pwd = prompt("Définir un mot de passe :");
+      if (pwd) {
+        localStorage.setItem('appPassword', pwd);
+        alert("Mot de passe enregistré.");
+      }
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+    }
+
+    function openCalculator() {
+      alert("Fonction calculatrice à venir...");
+    }
+
+    function closeMenu() {
+      document.getElementById('sideMenu').style.left = '-250px';
+    }
+  </script>
+</body>
+</html>
