@@ -70,6 +70,10 @@
     document.getElementById('fpBtn').onclick = authenticateFingerprint;
 
     async function authenticateFingerprint() {
+      if (!window.PublicKeyCredential) {
+        alert("Ce navigateur ne prend pas en charge WebAuthn.");
+        return;
+      }
       try {
         const cred = await navigator.credentials.get({
           publicKey: {
@@ -112,6 +116,10 @@
     }
 
     async function registerFingerprint() {
+      if (!window.PublicKeyCredential) {
+        alert("WebAuthn non supporté sur ce navigateur/appareil.");
+        return;
+      }
       try {
         const publicKey = {
           challenge: new Uint8Array(26),
@@ -132,7 +140,7 @@
           attestation: "direct"
         };
         const credential = await navigator.credentials.create({ publicKey });
-        alert("Empreinte enregistrée avec succès !");
+        alert("Empreinte enregistrée avec succès ! Veuillez maintenant activer la détection.");
       } catch (err) {
         alert("Erreur lors de l'enregistrement de l'empreinte : " + err.message);
       }
