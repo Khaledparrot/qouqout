@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>1Xbet</title>
+  <title>1Xbet Manager</title>
   <style>
     body {
       font-family: sans-serif;
@@ -21,9 +21,21 @@
       background: #333;
       color: #fff;
     }
-    .fixed-top { position: fixed; top: 0; left: 0; right: 0; background: #f2f2f2; z-index: 100; padding: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    h1 { text-align: center; font-size: 1.2rem; margin: 0 0 0.5rem 0; color: #003366; }
-    .top-summary { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-bottom: 0.5rem; font-size:  0.9rem; font-weight: bold; }
+    .fixed-top {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: #f2f2f2;
+      z-index: 100;
+      padding: 1rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.2rem;
+      margin: 0 0 0.5rem 0;
+      color: #003366;
+    }
+    .top-summary { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: bold; }
     .top-bar { display: flex; flex-direction: column; gap: 0.5rem; }
     @media(min-width: 600px) { .top-bar { flex-direction: row; justify-content: center; flex-wrap: wrap; } }
     .top-bar input { padding: 0.5rem; border-radius: 5px; border: 1px solid #ccc; flex: 1; }
@@ -56,51 +68,78 @@
     <input type="password" id="lockPwd" placeholder="Mot de passe" style="display:none;margin-top:1rem;">
     <button id="pwdBtn" style="display:none;">Déverrouiller</button>
   </div>
+
   <div id="sideMenu">
     <button onclick="closeMenu()">×</button>
     <button onclick="registerFingerprint()">Enregistrer empreinte</button>
     <button onclick="openSetPwd()">Définir mot de passe</button>
     <button onclick="toggleDarkMode()">Mode sombre</button>
-    <button onclick="openCalculator()">Calculatrice</button>
+    <button onclick="alert('Calculatrice à venir')">Calculatrice</button>
   </div>
+
+  <div class="fixed-top">
+    <h1>1Xbet</h1>
+    <div class="top-summary" id="totalSummary"></div>
+    <div class="top-bar">
+      <button onclick="openCustomerModal('add')">Ajouter un client</button>
+      <button onclick="showEditList()">Modifier un client</button>
+      <input type="text" id="search" placeholder="Rechercher..." oninput="renderCustomers()">
+    </div>
+  </div>
+
+  <div id="editSelectList"></div>
+  <div id="customerList"></div>
+
+  <div class="modal" id="customerModal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal()">&times;</span>
+      <input type="text" id="modalName" placeholder="Nom du client">
+      <input type="text" id="modalId" placeholder="ID du client">
+      <button onclick="submitCustomer()">Enregistrer</button>
+    </div>
+  </div>
+
   <script>
+    let customers = JSON.parse(localStorage.getItem('customers') || '[]');
+    let modalMode = 'add';
+    let editingCustomer = null;
     let failCount = 0;
     let storedPassword = localStorage.getItem('appPassword') || '';
+    let credentialId = localStorage.getItem('credentialId');
 
     document.getElementById('fpBtn').onclick = authenticateFingerprint;
 
     async function authenticateFingerprint() {
-      if (!window.PublicKeyCredential) {
-        alert("Ce navigateur ne prend pas en charge WebAuthn.");
-        return;
-      }
+      if (!window.PublicKeyCredential) return alert("WebAuthn non supporté.");
+      if (!credentialId) return alert("Veuillez enregistrer une empreinte d'abord.");
       try {
-        const cred = await navigator.credentials.get({
+        const assertion = await navigator.credentials.get({
           publicKey: {
             challenge: new Uint8Array(32),
+            allowCredentials: [{
+              id: Uint8Array.from(atob(credentialId), c => c.charCodeAt(0)),
+              type: "public-key",
+              transports: ["internal"]
+            }],
             timeout: 60000,
             userVerification: "preferred"
           }
         });
         unlockApp();
-      } catch (e) {
+      } catch {
         failCount++;
         if (failCount >= 3) {
           document.getElementById('lockPwd').style.display = 'block';
           document.getElementById('pwdBtn').style.display = 'block';
         } else {
-          alert(`Échec de l'empreinte. Tentatives restantes: ${3 - failCount}`);
+          alert(`Échec. Tentatives restantes : ${3 - failCount}`);
         }
       }
     }
 
     document.getElementById('pwdBtn').onclick = () => {
-      const entered = document.getElementById('lockPwd').value;
-      if (entered === storedPassword) {
-        unlockApp();
-      } else {
-        alert('Mot de passe incorrect');
-      }
+      if (document.getElementById('lockPwd').value === storedPassword) unlockApp();
+      else alert('Mot de passe incorrect');
     };
 
     function unlockApp() {
@@ -109,17 +148,11 @@
 
     function openSetPwd() {
       const pwd = prompt("Définir un mot de passe :");
-      if (pwd) {
-        localStorage.setItem('appPassword', pwd);
-        alert("Mot de passe enregistré.");
-      }
+      if (pwd) localStorage.setItem('appPassword', pwd);
     }
 
     async function registerFingerprint() {
-      if (!window.PublicKeyCredential) {
-        alert("WebAuthn non supporté sur ce navigateur/appareil.");
-        return;
-      }
+      if (!window.PublicKeyCredential) return alert("WebAuthn non supporté.");
       try {
         const publicKey = {
           challenge: new Uint8Array(26),
@@ -129,20 +162,16 @@
             name: "user@example.com",
             displayName: "Utilisateur"
           },
-          pubKeyCredParams: [
-            { type: "public-key", alg: -7 }
-          ],
-          authenticatorSelection: {
-            authenticatorAttachment: "platform",
-            userVerification: "required"
-          },
+          pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+          authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" },
           timeout: 60000,
           attestation: "direct"
         };
-        const credential = await navigator.credentials.create({ publicKey });
-        alert("Empreinte enregistrée avec succès ! Veuillez maintenant activer la détection.");
+        const cred = await navigator.credentials.create({ publicKey });
+        localStorage.setItem('credentialId', btoa(String.fromCharCode(...new Uint8Array(cred.rawId))));
+        alert("Empreinte enregistrée !");
       } catch (err) {
-        alert("Erreur lors de l'enregistrement de l'empreinte : " + err.message);
+        alert("Erreur d'enregistrement : " + err.message);
       }
     }
 
@@ -150,13 +179,124 @@
       document.body.classList.toggle('dark-mode');
     }
 
-    function openCalculator() {
-      alert("Fonction calculatrice à venir...");
-    }
-
     function closeMenu() {
       document.getElementById('sideMenu').style.left = '-250px';
     }
+
+    // Customer logic
+    function saveCustomers() {
+      localStorage.setItem('customers', JSON.stringify(customers));
+    }
+
+    function openCustomerModal(mode) {
+      modalMode = mode;
+      document.getElementById('modalName').value = '';
+      document.getElementById('modalId').value = '';
+      editingCustomer = null;
+      document.getElementById('customerModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('customerModal').style.display = 'none';
+    }
+
+    function submitCustomer() {
+      const name = document.getElementById('modalName').value.trim();
+      const id = document.getElementById('modalId').value.trim();
+      if (!name || !id) return alert("Champs requis");
+      if (modalMode === 'add') customers.push({ name, id, history: [], total: 0 });
+      else if (editingCustomer) { editingCustomer.name = name; editingCustomer.id = id; }
+      closeModal(); saveCustomers(); renderCustomers();
+    }
+
+    function showEditList() {
+      const list = document.getElementById('editSelectList');
+      list.innerHTML = '<button onclick="cancelEditList()">Annuler</button>';
+      customers.forEach((c, i) => {
+        const item = document.createElement('div');
+        item.textContent = `${c.name} (${c.id})`;
+        item.onclick = () => {
+          editingCustomer = customers[i];
+          document.getElementById('modalName').value = c.name;
+          document.getElementById('modalId').value = c.id;
+          modalMode = 'edit';
+          document.getElementById('customerModal').style.display = 'flex';
+          list.style.display = 'none';
+        };
+        list.appendChild(item);
+      });
+      list.style.display = 'block';
+    }
+
+    function cancelEditList() {
+      document.getElementById('editSelectList').style.display = 'none';
+    }
+
+    function deleteCustomer(index) {
+      if (confirm("Supprimer ce client ?")) {
+        customers.splice(index, 1);
+        saveCustomers();
+        renderCustomers();
+      }
+    }
+
+    function copyId(id) {
+      navigator.clipboard.writeText(id).then(() => alert("ID copié"));
+    }
+
+    function addTransaction(index, type) {
+      const input = document.getElementById(`amount-${index}`);
+      const amount = input.value.trim();
+      if (!amount || isNaN(amount)) return alert("Montant invalide");
+      const value = type === 'add' ? +amount : -amount;
+      const entry = { value, date: new Date().toLocaleString() };
+      customers[index].history.push(entry);
+      customers[index].total = (customers[index].total || 0) + value;
+      input.value = '';
+      saveCustomers();
+      renderCustomers();
+    }
+
+    function toggleHistory(index) {
+      const el = document.getElementById(`history-${index}`);
+      el.style.display = el.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function renderCustomers() {
+      const search = document.getElementById("search").value.toLowerCase();
+      const list = document.getElementById("customerList");
+      const totalSummary = document.getElementById("totalSummary");
+      list.innerHTML = ''; totalSummary.innerHTML = '';
+      let total = 0;
+      customers.forEach((c, i) => {
+        if (!c.name.toLowerCase().includes(search) && !c.id.toLowerCase().includes(search)) return;
+        const div = document.createElement('div');
+        div.className = 'customer';
+        div.innerHTML = `
+          <div class="customer-header">
+            <strong>${c.name}</strong>
+            <div>ID: <span>${c.id}</span> <button class="small" onclick="copyId('${c.id}')">Copier</button></div>
+            <div>Total: <strong>${c.total || 0}</strong></div>
+          </div>
+          <div class="action-row-top">
+            <input id="amount-${i}" class="amount-input" type="number" placeholder="Montant" />
+            <button onclick="addTransaction(${i}, 'add')">Ajouter</button>
+            <button onclick="addTransaction(${i}, 'sub')">Soustraire</button>
+          </div>
+          <div class="action-row-bottom">
+            <button onclick="deleteCustomer(${i})">Supprimer</button>
+            <button onclick="toggleHistory(${i})">Historique</button>
+          </div>
+          <div id="history-${i}" class="history">
+            ${c.history.map(h => `<div>${h.date}: <strong>${h.value > 0 ? '+' : ''}${h.value}</strong></div>`).join('') || 'Aucun historique'}
+          </div>`;
+        list.appendChild(div);
+        total += c.total || 0;
+      });
+      totalSummary.textContent = `Total clients : ${total} DA`;
+    }
+
+    renderCustomers();
   </script>
 </body>
 </html>
